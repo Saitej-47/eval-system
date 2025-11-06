@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: eval-system
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: CI
+        value: false
