@@ -6,6 +6,9 @@ function App() {
   const [userRole, setUserRole] = useState('student');
   const [analyticsData, setAnalyticsData] = useState(null);
   const [courses, setCourses] = useState([]);
+    const [selectedCourse, setSelectedCourse] = useState(null);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackForm, setFeedbackForm] = useState({ rating: 5, comments: '', teachingQuality: 5, courseContent: 5, difficulty: 3 });
 
   useEffect(() => {
     if (currentView === 'admin') {
@@ -35,6 +38,28 @@ function App() {
     setUserRole('student');
   };
 
+    const handleFeedbackClick = (course) => {
+    setSelectedCourse(course);
+    if (course.status === 'completed') {
+      // Show existing feedback
+      setFeedbackForm({ rating: course.rating, comments: 'Previously submitted feedback', teachingQuality: course.rating, courseContent: course.rating, difficulty: 3 });
+    } else {
+      // Reset form for new feedback
+      setFeedbackForm({ rating: 5, comments: '', teachingQuality: 5, courseContent: 5, difficulty: 3 });
+    }
+    setShowFeedbackModal(true);
+  };
+
+  const handleFeedbackSubmit = () => {
+    // Update course status
+    const updatedCourses = courses.map(c => 
+      c.id === selectedCourse.id ? { ...c, status: 'completed', rating: feedbackForm.rating } : c
+    );
+    setCourses(updatedCourses);
+    setShowFeedbackModal(false);
+    alert(`Feedback submitted for ${selectedCourse.name}!`);
+  };
+
   if (currentView === 'login') {
     return <LoginPage onLogin={handleLogin} userRole={userRole} setUserRole={setUserRole} />;
   }
@@ -43,8 +68,24 @@ function App() {
     return <AdminDashboard analyticsData={analyticsData} onLogout={handleLogout} />;
   }
 
-  return <StudentDashboard courses={courses} onLogout={handleLogout} />;
-}
+  return (
+    <>
+      <StudentDashboard 
+        courses={courses} 
+        onLogout={handleLogout} 
+        onFeedbackClick={handleFeedbackClick}
+      />
+      {showFeedbackModal && (
+        <FeedbackModal 
+          course={selectedCourse}
+          feedbackForm={feedbackForm}
+          setFeedbackForm={setFeedbackForm}
+          onSubmit={handleFeedbackSubmit}
+          onClose={() => setShowFeedbackModal(false)}
+        />
+      )}
+    </>
+  );}
 
 // Login Page Component
 function LoginPage({ onLogin, userRole, setUserRole }) {
@@ -84,8 +125,7 @@ function LoginPage({ onLogin, userRole, setUserRole }) {
 }
 
 // Student Dashboard Component
-function StudentDashboard({ courses, onLogout }) {
-  const pendingCount = courses.filter(c => c.status === 'pending').length;
+function StudentDashboard({ courses, onLogout, onFeedbackClick }) {  const pendingCount = courses.filter(c => c.status === 'pending').length;
   const completedCount = courses.filter(c => c.status === 'completed').length;
   const avgRating = courses.filter(c => c.rating).reduce((a, b) => a + b.rating, 0) / courses.filter(c => c.rating).length;
 
@@ -137,8 +177,7 @@ function StudentDashboard({ courses, onLogout }) {
                   ) : (
                     <span className="no-rating">Not rated yet</span>
                   )}
-                  <button className="btn-feedback">
-                    {course.status === 'pending' ? 'Give Feedback' : 'View Feedback'}
+                <button className="btn-feedback" onClick={() => onFeedbackClick(course)}>                    {course.status === 'pending' ? 'Give Feedback' : 'View Feedback'}
                   </button>
                 </div>
               </div>
@@ -235,5 +274,68 @@ function AdminDashboard({ analyticsData, onLogout }) {
     </div>
   );
 }
+
+  // Feedback Modal Component
+function FeedbackModal({ course, feedbackForm, setFeedbackForm, onSubmit, onClose }) {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>Feedback for {course.name}</h2>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </div>
+        <div className="modal-body">
+          <div className="form-group">
+            <label>Overall Rating: {feedbackForm.rating}/5</label>
+            <input 
+              type="range" 
+              min="1" 
+              max="5" 
+              value={feedbackForm.rating} 
+              onChange={(e) => setFeedbackForm({...feedbackForm, rating: parseFloat(e.target.value)})}
+            />
+          </div>
+          <div className="form-group">
+            <label>Teaching Quality: {feedbackForm.teachingQuality}/5</label>
+            <input 
+              type="range" 
+              min="1" 
+              max="5" 
+              value={feedbackForm.teachingQuality} 
+              onChange={(e) => setFeedbackForm({...feedbackForm, teachingQuality: parseFloat(e.target.value)})}
+            />
+          </div>
+          <div className="form-group">
+            <label>Course Content: {feedbackForm.courseContent}/5</label>
+            <input 
+              type="range" 
+              min="1" 
+              max="5" 
+              value={feedbackForm.courseContent} 
+              onChange={(e) => setFeedbackForm({...feedbackForm, courseContent: parseFloat(e.target.value)})}
+            />
+          </div>
+          <div className="form-group">
+            <label>Comments:</label>
+            <textarea 
+              value={feedbackForm.comments} 
+              onChange={(e) => setFeedbackForm({...feedbackForm, comments: e.target.value})}
+              placeholder="Share your feedback about the course..."
+              rows="4"
+            />
+          </div>
+        </div>
+        <div className="modal-footer">
+          {course.status === 'pending' && (
+            <button className="submit-btn" onClick={onSubmit}>Submit Feedback</button>
+          )}
+          <button className="cancel-btn" onClick={onClose}>Close</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
 
 export default App;
