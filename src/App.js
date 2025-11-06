@@ -338,4 +338,3 @@ function FeedbackModal({ course, feedbackForm, setFeedbackForm, onSubmit, onClos
 
 export default App;
 
-export default App;
