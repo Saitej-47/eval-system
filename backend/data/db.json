@@ -1,0 +1,6 @@
+{
+  "feedback": [
+    { "course": "Mathematics 101", "rating": 4.2, "comment": "Good" },
+    { "course": "Physics 201", "rating": 4.5, "comment": "Excellent" }
+  ]
+}
