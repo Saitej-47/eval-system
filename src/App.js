@@ -91,6 +91,16 @@ function App() {
 function LoginPage({ onLogin, userRole, setUserRole }) {
   return (
     <div className="login-container">
+         <div className="feedback-carousel">
+       <h2 className="feedback-title">Student Feedback</h2>
+       <div className="feedback-scroll">
+         <div className="feedback-item">⭐ "Great course! Learned so much." - Sarah</div>
+         <div className="feedback-item">⭐ "Instructor was very helpful and engaging!" - John</div>
+         <div className="feedback-item">⭐ "Excellent material and well structured." - Emma</div>
+         <div className="feedback-item">⭐ "Highly recommended for beginners." - Mike</div>
+         <div className="feedback-item">⭐ "Best course I've taken!" - Lisa</div>
+       </div>
+     </div>
       <div className="login-card">
         <h1>Evaluation System</h1>
         <div className="role-selector">
