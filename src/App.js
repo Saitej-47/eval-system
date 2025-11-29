@@ -65,7 +65,7 @@ function App() {
   }
 
   if (currentView === 'admin') {
-    return <AdminDashboard analyticsData={analyticsData} onLogout={handleLogout} />;
+    return <AdminDashboard analyticsData={analyticsData} courses={courses} onLogout={handleLogout} />;
   }
 
   return (
@@ -200,15 +200,13 @@ function StudentDashboard({ courses, onLogout, onFeedbackClick }) {  const pendi
 }
 
 // Admin Dashboard Component
-function AdminDashboard({ analyticsData, onLogout }) {
-  const courseRatings = [
-    { name: 'Math 101', rating: 4.2 },
-    { name: 'Physics 201', rating: 4.5 },
-    { name: 'Chemistry 101', rating: 3.8 },
-    { name: 'CS 301', rating: 4.8 },
-    { name: 'Biology 101', rating: 4.0 },
-  ];
-
+function AdminDashboard({ analyticsData,  courses,onLogout }) {
+const courseRatings = courses.map(course => ({
+    name: course.name,
+    rating: course.rating || 0
+  }));
+  const avgRating = courses.filter(c => c.rating).reduce((sum, c) => sum + c.rating, 0) / (courses.filter(c => c.rating).length || 1);
+  
   return (
     <div className="dashboard">
       <nav className="navbar">
