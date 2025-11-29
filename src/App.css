@@ -630,6 +630,11 @@ body {
   color: #333;
   margin-bottom: 20px;
   font-weight: 600;
+    overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+  animation: slideText 8s linear infinite;
+  
 }
 
 .feedback-scroll {
@@ -679,6 +684,23 @@ body {
   }
   100% {
     transform: translateX(calc(-300px * 5 - 20px * 4));
+  }
+}
+
+  @keyframes slideText {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100vw);
+    opacity: 0;
   }
 }
 }
