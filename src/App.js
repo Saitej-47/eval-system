@@ -65,8 +65,21 @@ function App() {
   }
 
   if (currentView === 'admin') {
-    return <AdminDashboard analyticsData={analyticsData} courses={courses} onLogout={handleLogout} />;
+    return <AdminDashboard analyticsData={analyticsData} courses={courses} onLogout={handleLogo onNavigate={setCurrentView}ut} />;
   }
+  
+  if (currentView === 'settings') {
+    return <SettingsPage userRole={userRole} onLogout={handleLogout} onBack={() => setCurrentView(userRole === 'admin' ? 'admin' : 'student')} />;
+  }
+
+  if (currentView === 'help') {
+    return <HelpPage onLogout={handleLogout} onBack={() => setCurrentView(userRole === 'admin' ? 'admin' : 'student')} />;
+  }
+
+  if (currentView === 'reports') {
+    return <ReportsPage courses={courses} onLogout={handleLogout} onBack={() => setCurrentView('admin')} />;
+  }
+
 
   return (
     <>
@@ -74,6 +87,7 @@ function App() {
         courses={courses} 
         onLogout={handleLogout} 
         onFeedbackClick={handleFeedbackClick}
+                      onNavigate={setCurrentView}
       />
       {showFeedbackModal && (
         <FeedbackModal 
@@ -135,7 +149,7 @@ function LoginPage({ onLogin, userRole, setUserRole }) {
 }
 
 // Student Dashboard Component
-function StudentDashboard({ courses, onLogout, onFeedbackClick }) {  const pendingCount = courses.filter(c => c.status === 'pending').length;
+function StudentDashboard({ courses, onLogout, onFeedbackClick }) {  const pendingCount = courses.filter(c => c.status === 'pending').length;, onNavigate
   const completedCount = courses.filter(c => c.status === 'completed').length;
   const avgRating = courses.filter(c => c.rating).reduce((a, b) => a + b.rating, 0) / courses.filter(c => c.rating).length;
 
@@ -146,6 +160,8 @@ function StudentDashboard({ courses, onLogout, onFeedbackClick }) {  const pendi
         <div className="nav-right">
           <span>👤 Student</span>
           <button onClick={onLogout}>Logout</button>
+              <button onClick={() => onNavigate('settings')}>⚙️ Settings</button>
+          <button onClick={() => onNavigate('help')}>❓ Help</button>
         </div>
       </nav>
       <div className="dashboard-content">
@@ -204,7 +220,7 @@ function AdminDashboard({ analyticsData,  courses,onLogout }) {
 const courseRatings = courses.map(course => ({
     name: course.name,
     rating: course.rating || 0
-  }));
+  }));, onNavigate
   const avgRating = courses.filter(c => c.rating).reduce((sum, c) => sum + c.rating, 0) / (courses.filter(c => c.rating).length || 1);
   
   return (
@@ -214,6 +230,9 @@ const courseRatings = courses.map(course => ({
         <div className="nav-right">
           <span>👤 Administrator</span>
           <button onClick={onLogout}>Logout</button>
+              <button onClick={() => onNavigate('reports')}>📈 Reports</button>
+          <button onClick={() => onNavigate('settings')}>⚙️ Settings</button>
+          <button onClick={() => onNavigate('help')}>❓ Help</button>
         </div>
       </nav>
       <div className="dashboard-content">
@@ -343,6 +362,169 @@ function FeedbackModal({ course, feedbackForm, setFeedbackForm, onSubmit, onClos
     </div>
   );
 }
+
+// Settings Page Component
+function SettingsPage({ userRole, onLogout, onBack }) {
+  return (
+    <div className="dashboard">
+      <nav className="navbar">
+        <h2>Evaluation System</h2>
+        <div className="nav-right">
+          <span>👤 {userRole === 'admin' ? 'Administrator' : 'Student'}</span>
+          <button onClick={onLogout}>Logout</button>
+        </div>
+      </nav>
+      <div className="dashboard-content">
+        <div className="welcome-section">
+          <button className="back-btn" onClick={onBack}>← Back</button>
+          <h1>Settings</h1>
+          <p>Manage your profile and preferences</p>
+        </div>
+        <div className="settings-container">
+          <div className="settings-card">
+            <h3>Profile Settings</h3>
+            <div className="settings-group">
+              <label>Full Name</label>
+              <input type="text" placeholder="Enter your name" />
+            </div>
+            <div className="settings-group">
+              <label>Email</label>
+              <input type="email" placeholder="Enter your email" />
+            </div>
+            <div className="settings-group">
+              <label>Role</label>
+              <input type="text" value={userRole} disabled />
+            </div>
+            <button className="btn-save">Save Changes</button>
+          </div>
+          <div className="settings-card">
+            <h3>Preferences</h3>
+            <div className="settings-group">
+              <label>
+                <input type="checkbox" defaultChecked /> Email Notifications
+              </label>
+            </div>
+            <div className="settings-group">
+              <label>
+                <input type="checkbox" defaultChecked /> Feedback Reminders
+              </label>
+            </div>
+            <div className="settings-group">
+              <label>
+                <input type="checkbox" /> Marketing Emails
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Help/About Page Component
+function HelpPage({ onLogout, onBack }) {
+  return (
+    <div className="dashboard">
+      <nav className="navbar">
+        <h2>Evaluation System</h2>
+        <div className="nav-right">
+          <button onClick={onLogout}>Logout</button>
+        </div>
+      </nav>
+      <div className="dashboard-content">
+        <div className="welcome-section">
+          <button className="back-btn" onClick={onBack}>← Back</button>
+          <h1>Help & About</h1>
+          <p>Learn how to use the Evaluation System</p>
+        </div>
+        <div className="help-container">
+          <div className="help-card">
+            <h3>📚 Getting Started</h3>
+            <p>Welcome to the Evaluation System. This platform allows students to provide feedback on their courses and helps administrators monitor course quality.</p>
+          </div>
+          <div className="help-card">
+            <h3>🎯 For Students</h3>
+            <ul>
+              <li>View all your enrolled courses</li>
+              <li>Submit feedback for pending courses</li>
+              <li>Track your course progress</li>
+              <li>View previously submitted feedback</li>
+            </ul>
+          </div>
+          <div className="help-card">
+            <h3>📊 For Administrators</h3>
+            <ul>
+              <li>Monitor course ratings and feedback</li>
+              <li>View detailed analytics and trends</li>
+              <li>Track response rates</li>
+              <li>Generate reports</li>
+            </ul>
+          </div>
+          <div className="help-card">
+            <h3>❓ FAQ</h3>
+            <p><strong>Q: Can I edit my feedback after submission?</strong></p>
+            <p>A: Once submitted, feedback cannot be edited. Please review before submitting.</p>
+            <p><strong>Q: Is my feedback anonymous?</strong></p>
+            <p>A: Feedback is associated with your account for tracking purposes.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Reports Page Component (Admin only)
+function ReportsPage({ courses, onLogout, onBack }) {
+  const totalCourses = courses.length;
+  const completedFeedback = courses.filter(c => c.status === 'completed').length;
+  const completionRate = ((completedFeedback / totalCourses) * 100).toFixed(1);
+
+  return (
+    <div className="dashboard">
+      <nav className="navbar">
+        <h2>Evaluation System</h2>
+        <div className="nav-right">
+          <span>👤 Administrator</span>
+          <button onClick={onLogout}>Logout</button>
+        </div>
+      </nav>
+      <div className="dashboard-content">
+        <div className="welcome-section">
+          <button className="back-btn" onClick={onBack}>← Back</button>
+          <h1>Reports & Analytics</h1>
+          <p>Detailed analysis of course evaluations</p>
+        </div>
+        <div className="reports-container">
+          <div className="report-card">
+            <h3>📈 Feedback Completion</h3>
+            <div className="stat-large">{completionRate}%</div>
+            <p>{completedFeedback} of {totalCourses} courses have feedback</p>
+          </div>
+          <div className="report-card">
+            <h3>⭐ Highest Rated Course</h3>
+            <div className="stat-large">{Math.max(...courses.filter(c => c.rating).map(c => c.rating)).toFixed(1)}</div>
+            <p>{courses.find(c => c.rating === Math.max(...courses.filter(c => c.rating).map(c => c.rating)))?.name}</p>
+          </div>
+          <div className="report-card">
+            <h3>📊 Average Ratings by Category</h3>
+            <div className="rating-summary">
+              <p>Overall: 4.3/5</p>
+              <p>Teaching Quality: 4.2/5</p>
+              <p>Course Content: 4.4/5</p>
+            </div>
+          </div>
+        </div>
+        <div className="export-section">
+          <h3>Export Options</h3>
+          <button className="btn-export">📥 Export as PDF</button>
+          <button className="btn-export">📥 Export as CSV</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 
 export default App;
 
